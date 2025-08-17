@@ -2,7 +2,7 @@ import { createSupabaseServer } from '@/lib/supabaseServer';
 import { generateLessonsForMonth } from './actions';
 
 export default async function Dashboard() {
-  const supabase = createSupabaseServer();
+  const supabase = await createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
 
   async function action(formData: FormData) {

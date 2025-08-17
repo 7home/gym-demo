@@ -4,9 +4,7 @@ import { prisma } from '@/lib/db';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServer(); // ← přidat await
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return null;
 
