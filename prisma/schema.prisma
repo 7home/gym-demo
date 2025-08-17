@@ -1,6 +1,4 @@
 // prisma/schema.prisma
-// This Prisma schema defines the data model for a training management system.
-// It includes models for User, Trainer, Client, Slot, and Lesson,
 generator client {
   provider = "prisma-client-js"
 }
@@ -36,12 +34,12 @@ model Trainer {
 }
 
 model Client {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
   rate      Int
   trainerId String
-  trainer   Trainer  @relation(fields: [trainerId], references: [id])
+  trainer   Trainer @relation(fields: [trainerId], references: [id])
   slots     Slot[]
 }
 
@@ -72,10 +70,10 @@ enum LessonType {
 }
 
 model Lesson {
-  id      String      @id @default(uuid())
-  slotId  String
-  slot    Slot        @relation(fields: [slotId], references: [id])
-  date    DateTime
-  state   LessonState @default(PLANNED)
-  type    LessonType  @default(CONTRACT)
+  id     String      @id @default(uuid())
+  slotId String
+  slot   Slot        @relation(fields: [slotId], references: [id])
+  date   DateTime
+  state  LessonState @default(PLANNED)
+  type   LessonType  @default(CONTRACT)
 }
