@@ -1,9 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
+// This Prisma schema defines the data model for a training management system.
+// It includes models for User, Trainer, Client, Slot, and Lesson,
 generator client {
   provider = "prisma-client-js"
 }
@@ -35,18 +32,17 @@ model Trainer {
   hourlyFix Int
   active    Boolean  @default(true)
   slots     Slot[]
-  clients   Client[] // ← opačná strana Client.trainer
+  clients   Client[]
 }
 
 model Client {
-  id        String  @id @default(uuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
   rate      Int
   trainerId String
-  trainer   Trainer @relation(fields: [trainerId], references: [id])
+  trainer   Trainer  @relation(fields: [trainerId], references: [id])
   slots     Slot[]
-  // ⛔ ŽÁDNÉ pole typu Client? ani clientId zde nemá být
 }
 
 model Slot {
@@ -62,11 +58,6 @@ model Slot {
   lessons     Lesson[]
 }
 
-enum LessonType {
-  CONTRACT
-  EXTRA
-}
-
 enum LessonState {
   PLANNED
   TAUGHT
@@ -75,11 +66,16 @@ enum LessonState {
   REPLACEMENT
 }
 
+enum LessonType {
+  CONTRACT
+  EXTRA
+}
+
 model Lesson {
-  id     String      @id @default(uuid())
-  slotId String
-  slot   Slot        @relation(fields: [slotId], references: [id])
-  date   DateTime
-  state  LessonState @default(PLANNED)
-  type   LessonType  @default(CONTRACT)
+  id      String      @id @default(uuid())
+  slotId  String
+  slot    Slot        @relation(fields: [slotId], references: [id])
+  date    DateTime
+  state   LessonState @default(PLANNED)
+  type    LessonType  @default(CONTRACT)
 }
