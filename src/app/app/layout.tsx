@@ -3,11 +3,13 @@ import { createSupabaseServer } from '@/lib/supabaseServer';
 import { prisma } from '@/lib/db';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const supabase = createSupabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null; // middleware by neměl pustit nepřihlášené
+  const supabase = await createSupabaseServer(); // ← přidat await
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // ensure user row exists
+  if (!user) return null;
+
   await prisma.user.upsert({
     where: { authId: user.id },
     update: {},
