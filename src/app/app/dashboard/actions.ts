@@ -1,6 +1,6 @@
 'use server';
 import { prisma } from '@/lib/db';
-import { startOfMonth, endOfMonth, addDays, isSameDay } from 'date-fns';
+import { startOfMonth, endOfMonth, addDays } from 'date-fns';
 
 export async function generateLessonsForMonth(isoMonth: string) {
   const month = new Date(isoMonth + '-01T00:00:00.000Z');
