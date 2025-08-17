@@ -21,7 +21,7 @@ enum Role {
 
 model User {
   id        String   @id @default(uuid())
-  authId    String   @unique // Supabase auth.users.id (UUID string)
+  authId    String   @unique
   role      Role     @default(CLIENT)
   createdAt DateTime @default(now())
   Trainer   Trainer?
@@ -29,46 +29,57 @@ model User {
 }
 
 model Trainer {
-  id        String  @id @default(uuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id])
-  hourlyFix Int     // Kč/hod
-  active    Boolean @default(true)
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  hourlyFix Int
+  active    Boolean  @default(true)
   slots     Slot[]
+  clients   Client[] // ← opačná strana Client.trainer
 }
 
 model Client {
   id        String  @id @default(uuid())
   userId    String  @unique
   user      User    @relation(fields: [userId], references: [id])
-  rate      Int     // Kč/lekce
+  rate      Int
   trainerId String
   trainer   Trainer @relation(fields: [trainerId], references: [id])
   slots     Slot[]
+  // ⛔ ŽÁDNÉ pole typu Client? ani clientId zde nemá být
 }
 
-model Slot { // smluvní opakování
-  id          String  @id @default(uuid())
+model Slot {
+  id          String   @id @default(uuid())
   clientId    String
-  client      Client  @relation(fields: [clientId], references: [id])
+  client      Client   @relation(fields: [clientId], references: [id])
   trainerId   String
-  trainer     Trainer @relation(fields: [trainerId], references: [id])
-  weekday     Int     // 0=Sun .. 6=Sat
-  startMin    Int     // např. 14*60
-  durationMin Int     // 60
-  active      Boolean @default(true)
+  trainer     Trainer  @relation(fields: [trainerId], references: [id])
+  weekday     Int
+  startMin    Int
+  durationMin Int
+  active      Boolean  @default(true)
   lessons     Lesson[]
 }
 
-enum LessonState { PLANNED TAUGHT EXCUSED NO_SHOW REPLACEMENT }
+enum LessonState {
+  PLANNED
+  TAUGHT
+  EXCUSED
+  NO_SHOW
+  REPLACEMENT
+}
 
-enum LessonType { CONTRACT EXTRA }
+enum LessonType {
+  CONTRACT
+  EXTRA
+}
 
-model Lesson { // materializovaná instance
-  id      String      @id @default(uuid())
-  slotId  String
-  slot    Slot        @relation(fields: [slotId], references: [id])
-  date    DateTime    // začátek
-  state   LessonState @default(PLANNED)
-  type    LessonType  @default(CONTRACT)
+model Lesson {
+  id     String      @id @default(uuid())
+  slotId String
+  slot   Slot        @relation(fields: [slotId], references: [id])
+  date   DateTime
+  state  LessonState @default(PLANNED)
+  type   LessonType  @default(CONTRACT)
 }
