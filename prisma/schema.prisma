@@ -62,17 +62,17 @@ model Slot {
   lessons     Lesson[]
 }
 
+enum LessonType {
+  CONTRACT
+  EXTRA
+}
+
 enum LessonState {
   PLANNED
   TAUGHT
   EXCUSED
   NO_SHOW
   REPLACEMENT
-}
-
-enum LessonType {
-  CONTRACT
-  EXTRA
 }
 
 model Lesson {
