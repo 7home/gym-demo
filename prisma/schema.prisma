@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MANAGER
+  TRAINER
+  CLIENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  authId    String   @unique // Supabase auth.users.id (UUID string)
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  Trainer   Trainer?
+  Client    Client?
+}
+
+model Trainer {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  hourlyFix Int     // Kč/hod
+  active    Boolean @default(true)
+  slots     Slot[]
+}
+
+model Client {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  rate      Int     // Kč/lekce
+  trainerId String
+  trainer   Trainer @relation(fields: [trainerId], references: [id])
+  slots     Slot[]
+}
+
+model Slot { // smluvní opakování
+  id          String  @id @default(uuid())
+  clientId    String
+  client      Client  @relation(fields: [clientId], references: [id])
+  trainerId   String
+  trainer     Trainer @relation(fields: [trainerId], references: [id])
+  weekday     Int     // 0=Sun .. 6=Sat
+  startMin    Int     // např. 14*60
+  durationMin Int     // 60
+  active      Boolean @default(true)
+  lessons     Lesson[]
+}
+
+enum LessonState { PLANNED TAUGHT EXCUSED NO_SHOW REPLACEMENT }
+
+enum LessonType { CONTRACT EXTRA }
+
+model Lesson { // materializovaná instance
+  id      String      @id @default(uuid())
+  slotId  String
+  slot    Slot        @relation(fields: [slotId], references: [id])
+  date    DateTime    // začátek
+  state   LessonState @default(PLANNED)
+  type    LessonType  @default(CONTRACT)
+}
