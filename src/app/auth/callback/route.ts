@@ -1,18 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
+export const runtime = 'nodejs';          // pojistka
+export const dynamic = 'force-dynamic';   // nikdy necachovat
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get('code');
-  const redirectTo = `${url.origin}/app`; // kam uživatele po přihlášení pustíme
-  const res = NextResponse.redirect(redirectTo);
 
   if (!code) {
-    // žádný kód → pošli na login
     return NextResponse.redirect(`${url.origin}/login`);
   }
 
-  // vytvoř serverový Supabase klient s cookie bridge
+  // Připravíme redirect response, do kterého budeme zapisovat cookies
+  const redirectTo = `${url.origin}/app`;
+  const res = NextResponse.redirect(redirectTo);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -31,7 +35,7 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  // vyměň kód za session → nastaví cookies do `res`
+  // Výměna kódu za session → zapíše Set-Cookie do `res`
   await supabase.auth.exchangeCodeForSession(code);
 
   return res;
